@@ -97,7 +97,7 @@ one exe file.
 
 -   Follow :  **New > Project > Visual C++ > Win32 > Win32 Console Applicaton** and create a new project.
 -   Add Includes to your main cpp file . ( Create **RawFiles.h** in headers and leave it empty )
-
+```
     #include <cstdlib> #include <iostream> #include <sstream> #include <cassert> #include <fstream> #include "RawFiles.h"
         #pragma region Includes and Imports
                 #include <windows.h>
@@ -109,12 +109,12 @@ one exe file.
                 rename("ReportEvent", "InteropServices_ReportEvent")
                 using namespace mscorlib;
         #pragma endregion
-
+```
 -   Define just one value : `#define RAW_ASSEMBLY_LENGTH 1000`
 -   Replace `"int _tmain(int argc, _TCHAR* argv[])"` with :
-
+```
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
-
+```
 -   Goto Linker Properties and change SubSystem to **Windows (/SUBSYSTEM:WINDOWS)** and Target Machine to **MachineX64 (/MACHINE:X64)**.
 
 ## **Step C )** Start to Code The Host!
@@ -131,7 +131,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 > If you didn't , you don't need to add it.
 
 -   Install CLRHost , MetaHost and Instances :
-
+```
     ICLRMetaHost       *pMetaHost       = NULL;  /// Metahost installed.
     ICLRMetaHostPolicy *pMetaHostPolicy = NULL;  /// Metahost Policy installed.
     ICLRDebugging      *pCLRDebugging   = NULL;  /// Metahost Debugging installed.
@@ -142,18 +142,20 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
                         (LPVOID*)&pMetaHostPolicy);  
     hr = CLRCreateInstance (CLSID_CLRDebugging, IID_ICLRDebugging,  
                         (LPVOID*)&pCLRDebugging); 
-
+```
 -   Install .Net Runtime :
 
 Tip : You can set your runtime framework version here `GetRuntime(L"RUNTIMEVERSION")`.
 
 For this project I used "v4.0.30319" Version.
 
+```
     ICLRRuntimeInfo* pRuntimeInfo = NULL; /// Runtime Info Installed.
         hr = pMetaHost->GetRuntime(L"v4.0.30319", IID_ICLRRuntimeInfo, (VOID**)&pRuntimeInfo);
+```
 
 -   Start and Load CLRApp :
-
+```
     BOOL bLoadable;
     
     hr = pRuntimeInfo->IsLoadable(&bLoadable);
@@ -179,10 +181,10 @@ For this project I used "v4.0.30319" Version.
         SAFEARRAY* pSafeArray  = SafeArrayCreate(VT_UI1, 1, rgsabound);
         void* pvData = NULL;
         hr = SafeArrayAccessData(pSafeArray, &pvData);
-
+```
 -   Add , execution , clean up , and memory reader :
     
-
+```
     memcpy(pvData, Raw_Net_Data, RAW_ASSEMBLY_LENGTH);
     
     hr = SafeArrayUnaccessData(pSafeArray);
@@ -200,7 +202,7 @@ For this project I used "v4.0.30319" Version.
     obj.vt = VT_NULL;
     SAFEARRAY *psaStaticMethodArgs = SafeArrayCreateVector(VT_VARIANT, 0, 0);
     hr = pMethodInfo->Invoke_3(obj, psaStaticMethodArgs, &retVal);
-
+```
 > If you have any problem at compiling , just restart visual studio.
 
 ## **Step D )** Using The Code!
@@ -210,16 +212,16 @@ For this project I used "v4.0.30319" Version.
 -   Select all of hashes and click on : **Edit > Copy As > C** .
 -   Paste clipboard on `RawFiles.h` file.
 -   Change the unsigned char name to `Raw_Net_Data` :
-
+```
     unsigned char Raw_Net_Data[120399] = {
         0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
         ...
     };
-
+```
 -   Set `RAW_ASSEMBLY_LENGTH` to Raw_Net_Data[**120399**] number :
-
+```
     #define RAW_ASSEMBLY_LENGTH **120399**
-
+```
 Now build the application.
 
 **As you can see your app runs perfectly with any problem !**
@@ -230,7 +232,7 @@ Now build the application.
 -   Let's start our next solution.
 -   We're going to create the hex from strings arrays and load it on runtime. Ripper can't recognize the pe hexes located in your resources.
 -   All code we wrote till now ...
-
+```
     #include <cstdlib> #include <iostream> #include <sstream> #include "stdafx.h" #include <cassert> #include <fstream> #include "RawFiles.h"
         #pragma region Includes and Imports
                 #include <windows.h>
@@ -296,7 +298,7 @@ Now build the application.
                                         hr = pMethodInfo->Invoke_3(obj, psaStaticMethodArgs, &retVal);
         return 0;
     }
-
+```
 **You can copy/paste xD whatever ...**
 
 ## **Step E )** Anti-Ripper Solutions
@@ -338,7 +340,7 @@ Now build the application.
 1.  String arrays are limited then we need to create block chains and link them together.
 2.  Data.txt Includes String Arrays and F_N.txt Includes Functions to recreate Hex array.
 3.  Paste functions at `//////// Add Functions` Here Area at main code.
-
+```
     int blockchainsize = 10000; ///Block Size of strings
     int time_in_block = (_countof(rawData))/(blockchainsize); /// Data Parts
     FILE *filex = fopen("C:\\Data.txt", "w");
@@ -380,7 +382,7 @@ Now build the application.
         
         return output;
     }
-
+```
 ## **Step F )** Final Step!
 
 -   Congratulations!
@@ -397,7 +399,7 @@ Now build the application.
 -   **First Issue >** App can still be ripped by .Net Generic Unpacker
 
 1.  Add this code in your .net app with a timer:
-
+```
   
 
      foreach (Process process_get in Process.GetProcesses())
@@ -411,7 +413,7 @@ Now build the application.
                     }
                     catch { }
                 }
-
+```
 2. You can make this function more complex by killing process using file informations , MD5 Hashes and etc.
 
 -   **Second Issue >** App's threads can still be paused , you can write anti-supsend on your c++ program.
